@@ -9,6 +9,8 @@ import "react-toastify/dist/ReactToastify.css";
 import ProfilePage from "./pages/profile.page";
 import CameraComponent from "./components/feature/convertImageToText";
 import UploadImageComponent from "./components/feature/uploadImage";
+import AdminRoute from "./components/auth/AdminRoute";
+import AdminDashboard from "./pages/admin";
 
 function App() {
   return (
@@ -19,6 +21,15 @@ function App() {
         <Route path="/upload-file" element={<UploadImageComponent />} />
         <Route path="/register" element={<RegisterPage />} />
         {/* <Route path="/" element={<HomePage />} /> */}
+
+        <Route
+          path="/admin-dashboard"
+          element={
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
+          }
+        />
         <Route
           path="/"
           element={
@@ -32,6 +43,14 @@ function App() {
           element={
             <PrivateRoute>
               <CameraComponent />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/upload-image"
+          element={
+            <PrivateRoute>
+              <UploadImageComponent />
             </PrivateRoute>
           }
         />

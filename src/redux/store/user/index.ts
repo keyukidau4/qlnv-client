@@ -43,7 +43,9 @@ export const userSlice = createSlice({
   // },
 
   reducers: {
-    logout: () => initialState,
+    logout: () => {
+      localStorage.removeItem("user-info");
+    },
     setUser: (state, action: PayloadAction<UserType>) => {
       state.user = action.payload;
       localStorage.setItem("user-info", JSON.stringify(action.payload));

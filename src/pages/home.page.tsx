@@ -1,18 +1,26 @@
 import axios from "axios";
-import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useAppDispatch } from "../redux/store";
+import { logout } from "../redux/store/user";
+import Navbar from "../components/navbar";
+import LoadingComponent from "../common/common-jsx/loading";
+import EventsComponent from "../components/events";
+import events from "../test/event";
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   //logout start
   const handlerLogout = async () => {
-    const values: string = "";
+    setIsLoading(true);
     await axios
       .post(
         `${process.env.REACT_APP_SERVER_ENDPOINT}/auth/logout`,
-        { values },
+        {},
         {
           withCredentials: true,
         }
@@ -22,6 +30,8 @@ const HomePage: React.FC = () => {
           toast.success(response.data.message, {
             position: "top-left",
           });
+          dispatch(logout());
+          setIsLoading(false);
           navigate("/login");
         } else {
           toast.error("Logout Error");
@@ -29,61 +39,21 @@ const HomePage: React.FC = () => {
       })
       .catch((error) => {
         console.log({ error });
-
         toast.error(error.message);
+        setIsLoading(false);
       });
   };
   //logout end
 
+  if (isLoading) {
+    return <LoadingComponent />;
+  }
+
   return (
     <div className="container">
-      <nav className="navbar navbar-expand-lg navbar-light bg-light">
-        <div className="container-fluid">
-          <a className="navbar-brand" href="#">
-            Navbar
-          </a>
-          <button
-            className="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
-            <span className="navbar-toggler-icon"></span>
-          </button>
-          <div className="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-              <li className="nav-item">
-                <Link className="nav-link active" aria-current="page" to="#">
-                  Home
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="#">
-                  Link
-                </Link>
-              </li>
-            </ul>
-            <div className="d-flex justify-content-between">
-              <Link to={"/login"}>
-                <button className="btn btn-outline-primary" type="button">
-                  Login
-                </button>
-              </Link>
-              <button
-                className="btn btn-outline-success d-none"
-                type="button"
-                onClick={handlerLogout}
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Navbar handlerLogout={handlerLogout} />
       <h1>Home Page</h1>
+      <EventsComponent events={events} />
     </div>
   );
 };

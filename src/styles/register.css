@@ -1,6 +1,12 @@
 .content {
-  height: 80vh;
+  height: 85vh;
   width: 50vw;
   background-color: #fff;
   box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);
+}
+
+@media screen and (max-width: 600px) {
+  .content {
+    width: 100vw;
+  }
 }

@@ -1,6 +1,6 @@
 import React from "react";
 
-const UnauthorizePage = () => {
+const UnauthorizePage: React.FC = () => {
   return (
     <div className="container">
       <h1>unauthorize page</h1>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import axios from "axios";
 import "../styles/register.css";
@@ -93,7 +93,7 @@ const RegisterPage: React.FC = () => {
         <div className="text-center my-3">
           <h1>Register Page</h1>
         </div>
-        <form onSubmit={handleSubmit(onSubmitHandler)} className="mt-3">
+        <form onSubmit={handleSubmit(onSubmitHandler)} className="my-3">
           <div className="mb-3">
             <label htmlFor="exampleInputEmail1" className="form-label">
               Name
@@ -178,6 +178,12 @@ const RegisterPage: React.FC = () => {
             </button>
           </div>
         </form>
+
+        <div className="my-3 text-center">
+          <Link to={"/login"}>
+            <span>ログインへ</span>
+          </Link>
+        </div>
       </div>
     </div>
   );

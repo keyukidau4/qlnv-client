@@ -49,6 +49,8 @@ const LoginPage: React.FC = () => {
         console.log("response: ", response.data);
         if (response.data.code !== 200) {
           toast.error(response.data.error, { position: "top-right" });
+          setIsLoading(false);
+          navigator("/login");
         } else {
           toast.success(response.data.message, {
             position: "top-right",
@@ -75,6 +77,15 @@ const LoginPage: React.FC = () => {
 
           navigator("/");
         }
+      })
+      .catch((error) => {
+        setIsLoading(false);
+        console.log({ error });
+
+        toast.error("🔑パスワードかメールが間違っています！", {
+          position: "top-right",
+        });
+        navigator("/login");
       });
 
     const timer = setTimeout(() => {
