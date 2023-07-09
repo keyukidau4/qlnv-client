@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import axios from "axios";
 import "../styles/register.css";
 import LoadingCss from "../common/common-jsx/loading-css";
+import axios from "../utils/axios";
 
 export type RegisterInput = {
   email: string;
@@ -34,6 +34,7 @@ const RegisterPage: React.FC = () => {
   // const [password, setPassword] = useState<string>("");
   const password = watch("password");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const navigator = useNavigate();
 
   const onSubmitHandler: SubmitHandler<RegisterInput> = async (values) => {
     console.log({ values });
@@ -47,14 +48,10 @@ const RegisterPage: React.FC = () => {
     };
 
     await axios
-      .post(
-        `${process.env.REACT_APP_SERVER_ENDPOINT}/auth/register`,
-        requestValue,
-        {
-          withCredentials: true,
-        }
-      )
-      .then((response) => {
+      .post(`auth/register`, requestValue, {
+        withCredentials: true,
+      })
+      .then((response): void => {
         console.log("response: ", response.data);
         if (response.data.code !== 200) {
           toast.error(response.data.error, { position: "top-right" });
@@ -72,12 +69,21 @@ const RegisterPage: React.FC = () => {
 
           navigate("/login");
         }
+      })
+      .catch((error): void => {
+        setIsLoading(false);
+        console.log({ error });
+
+        toast.error(error.message, {
+          position: "top-right",
+        });
+        navigator("/register");
       });
 
-    const timer = setTimeout(() => {
+    const timer: NodeJS.Timeout = setTimeout((): void => {
       setIsLoading(false);
     }, 3000);
-    return () => clearTimeout(timer);
+    return (): void => clearTimeout(timer);
   };
 
   if (isLoading) {

@@ -1,0 +1,15 @@
+.card-style {
+  border: none;
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
+}
+.card-style a {
+  text-decoration: none;
+}
+.card-style a span {
+  font-size: 20px;
+  transition: all 0.3s linear;
+}
+
+.card-style a span:hover {
+  font-size: 25px;
+}

@@ -1,12 +1,12 @@
 export type UserType = {
-  _id: String;
-  email: String;
-  name: String;
-  role: String;
-  department: String;
+  _id: string;
+  email: string;
+  username: string;
+  role: string;
+  department: string;
 };
 
 export interface GenerateResponse {
-  status: String;
-  message: String;
+  status: string;
+  message: string;
 }
