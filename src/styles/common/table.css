@@ -1,0 +1,8 @@
+td span {
+  transition: all 0.2s linear;
+}
+
+td span:hover {
+  cursor: pointer;
+  font-size: 20px;
+}

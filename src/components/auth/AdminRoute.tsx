@@ -2,7 +2,7 @@ import React from "react";
 import { Navigate } from "react-router-dom";
 
 const AdminRoute = ({ children }: { children: React.ReactElement }) => {
-  const token = localStorage.getItem("user-info");
+  const token: string | null = localStorage.getItem("user-info");
 
   const checkRole: string = JSON.parse(token!)?.role;
 

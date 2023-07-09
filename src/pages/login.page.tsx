@@ -2,11 +2,11 @@ import React, { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import axios from "axios";
 // import LoadingComponent from "../common/common-jsx/loading";
 import LoadingCss from "../common/common-jsx/loading-css";
 import { useAppDispatch, useAppSelector } from "../redux/store";
 import { setUser } from "../redux/store/user";
+import axios from "../utils/axios";
 
 export type LoginInput = {
   email: string;
@@ -41,8 +41,10 @@ const LoginPage: React.FC = () => {
   const onSubmitHandler: SubmitHandler<LoginInput> = async (values) => {
     setIsLoading(true);
 
+    console.log("values: ", values);
+
     await axios
-      .post(`${process.env.REACT_APP_SERVER_ENDPOINT}/auth/login`, values, {
+      .post(`auth/login`, values, {
         withCredentials: true,
       })
       .then((response) => {
@@ -69,20 +71,25 @@ const LoginPage: React.FC = () => {
             setUser({
               _id: responseData._id,
               email: responseData.email,
-              name: responseData.username,
+              username: responseData.username,
               role: responseData.role,
               department: responseData.department,
             })
           );
 
-          navigator("/");
+          if (responseData && responseData.role !== "admin") {
+            navigator("/");
+            return;
+          }
+
+          navigator("/admin-dashboard");
         }
       })
       .catch((error) => {
         setIsLoading(false);
         console.log({ error });
 
-        toast.error("🔑パスワードかメールが間違っています！", {
+        toast.error(error.message, {
           position: "top-right",
         });
         navigator("/login");

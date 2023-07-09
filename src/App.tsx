@@ -11,6 +11,7 @@ import CameraComponent from "./components/feature/convertImageToText";
 import UploadImageComponent from "./components/feature/uploadImage";
 import AdminRoute from "./components/auth/AdminRoute";
 import AdminDashboard from "./pages/admin";
+import UsersDashboard from "./pages/admin/users";
 
 function App() {
   return (
@@ -27,6 +28,14 @@ function App() {
           element={
             <AdminRoute>
               <AdminDashboard />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin-dashboard/users"
+          element={
+            <AdminRoute>
+              <UsersDashboard />
             </AdminRoute>
           }
         />

@@ -47,7 +47,10 @@ export const userSlice = createSlice({
       localStorage.removeItem("user-info");
     },
     setUser: (state, action: PayloadAction<UserType>) => {
+      console.log("action: ", action.payload);
+
       state.user = action.payload;
+
       localStorage.setItem("user-info", JSON.stringify(action.payload));
     },
     // login: (state, action: PayloadAction<UserType>) => {
