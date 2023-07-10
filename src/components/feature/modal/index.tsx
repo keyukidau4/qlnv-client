@@ -1,43 +1,62 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { UserType } from "../../../redux/store/user/type";
 
 export type Props = {
-  user: UserType;
+  user?: UserType;
+  addUser?: boolean;
   handleCloseModal: () => void;
-  handleEditSubmit: (
-    name?: string,
-    email?: string,
-    role?: string,
-    department?: string
+  handleEditSubmit?: (
+    _id: string,
+    name: string,
+    email: string,
+    role: string,
+    department: string
+  ) => void;
+  handleAddNewUser?: (
+    name: string,
+    email: string,
+    role: string,
+    department: string
   ) => void;
 };
 
 const ModalComponent: ({
   user,
+  addUser,
   handleCloseModal,
   handleEditSubmit,
+  handleAddNewUser,
 }: Props) => JSX.Element = ({
   user,
+  addUser,
   handleCloseModal,
   handleEditSubmit,
+  handleAddNewUser,
 }: Props): JSX.Element => {
-  const [name, setName] = useState<string>(user.username);
-  const [userEmail, setUserEmail] = useState<string>(user.email);
-  const [userRole, setUserRole] = useState<string>(user.role);
-  const [userDepartment, setUserDepartment] = useState<string>(user.department);
+  const [name, setName] = useState<string | "">(user?.username || "");
+  const [userEmail, setUserEmail] = useState<string | "">(user?.email || "");
+  const [userRole, setUserRole] = useState<string | "">(user?.role || "");
+  const [userDepartment, setUserDepartment] = useState<string | "">(
+    user?.department || ""
+  );
 
   const handleClick = () => {
     console.log(`${name} ${userEmail} ${userRole} ${userDepartment}`);
-    handleEditSubmit(name, userEmail, userRole, userDepartment);
+    if (user && handleEditSubmit) {
+      handleEditSubmit(user._id, name, userEmail, userRole, userDepartment);
+    }
+    if (addUser && handleAddNewUser) {
+      handleAddNewUser(name, userEmail, userRole, userDepartment);
+    }
     handleCloseModal();
   };
 
   return (
     <div
-      className={`modal fade ${user.username ? "show " : ""}`}
+      className={`modal fade ${user?.username || addUser ? "show " : ""}`}
       tabIndex={-1}
       style={{
-        display: user.username ? "block" : "none",
+        display: user?.username || addUser ? "block" : "none",
         backgroundColor: "rgba(0,0,0,.4)",
       }}
     >

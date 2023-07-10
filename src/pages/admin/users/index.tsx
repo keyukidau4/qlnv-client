@@ -4,176 +4,183 @@ import "../../../styles/common/table.css";
 import { UserType } from "../../../redux/store/user/type";
 import axios from "../../../utils/axios";
 import LoadingCss from "../../../common/common-jsx/loading-css";
-import { AxiosResponse } from "axios";
 import ModalComponent from "../../../components/feature/modal";
+import { useAppDispatch } from "../../../redux/store";
+import { logout } from "../../../redux/store/user";
+import { NavigateFunction, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import TableComponent from "../../../components/feature/table";
 
 const UsersDashboard: () => JSX.Element = (): JSX.Element => {
   const [users, setUsers] = useState<Array<UserType>>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [userModal, setUserModal] = useState<UserType>();
-  // const [showModal,setShowModal] =
+  const [addUser, setAddUser] = useState<boolean>(false);
+
+  const dispatch = useAppDispatch();
+  const navigate: NavigateFunction = useNavigate();
 
   //get data function
-  const getListUsers: () => Promise<
-    AxiosResponse<any, any>
-  > = async (): Promise<AxiosResponse<any, any>> => {
-    return await axios.get("admin/users", { withCredentials: true });
+  const getListUsers: () => Promise<void> = async (): Promise<void> => {
+    return await axios
+      .get("admin/users", { withCredentials: true })
+      .then((response) => {
+        setUsers(response.data.users);
+      })
+      .catch((error) => {
+        setIsLoading(false);
+        console.log({ error });
+        if (error.response && error.response.status === 404) {
+          dispatch(logout());
+          toast.error("セッション切れ！", {
+            position: "top-left",
+          });
+          navigate("/login");
+          return;
+        }
+        if (error.response && error.response.status === 400) {
+          toast.error("Update Failed", {
+            position: "top-left",
+          });
+          return;
+        }
+      });
   };
 
-  //get users data
-  // useEffect((): (() => void) => {
-  //   setIsLoading(true);
-  //   const response: () => Promise<void> = async (): Promise<void> => {
-  //     const res: AxiosResponse<any, any> = await getListUsers();
-  //     console.log({ res });
-  //     setUsers(res.data.users);
-  //   };
-  //   response();
-  //   const timer: NodeJS.Timeout = setTimeout((): void => {
-  //     setIsLoading(false);
-  //   }, 2000);
-  //   return (): void => clearTimeout(timer);
-  // }, []);
+  // get users data
+  useEffect((): (() => void) => {
+    setIsLoading(true);
+    const response: () => Promise<void> = async (): Promise<void> => {
+      await getListUsers();
+    };
+    response();
+    const timer: NodeJS.Timeout = setTimeout((): void => {
+      setIsLoading(false);
+    }, 2000);
+    return (): void => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  //add new user
+  const handleChange = () => {
+    setAddUser(true);
+  };
+  const handleAddNewUser: (
+    name: string,
+    email: string,
+    role: string,
+    department: string
+  ) => void = (
+    name: string,
+    email: string,
+    role: string,
+    department: string
+  ): void => {
+    console.log(`${name! + email + role + department}`);
+  };
 
   //loading page
   if (isLoading) {
     return <LoadingCss />;
   }
 
-  const userForTest = {
-    _id: "sds",
-    username: "Mark",
-    email: "Otto@gmail.com",
-    role: "@develop",
-    department: "System Develop",
-  };
-  const userForTest1 = {
-    _id: "sds",
-    username: "Jean",
-    email: "jean@gmail.com",
-    role: "@develop",
-    department: "System Develop",
-  };
-
-  const handleModal = (user: UserType) => {
+  const handleModal: (user: UserType) => void = (user: UserType): void => {
     setUserModal(user);
   };
 
   const handleCloseModal: () => void = (): void => {
     setUserModal(undefined);
+    setAddUser(false);
   };
 
   const handleEditSubmit: (
-    name?: string,
-    email?: string,
-    role?: string,
-    department?: string
-  ) => void = (
-    name?: string,
-    email?: string,
-    role?: string,
-    department?: string
-  ): void => {
-    console.log(`${name! + email + role + department}`);
+    _id: string,
+    name: string,
+    email: string,
+    role: string,
+    department: string
+  ) => Promise<void> = async (
+    _id: string,
+    name: string,
+    email: string,
+    role: string,
+    department: string
+  ): Promise<void> => {
+    setIsLoading(true);
+    const user = {
+      username: name,
+      email,
+      role,
+      department,
+    };
+
+    await axios
+      .put(
+        "admin/update-user",
+        { _id, user },
+        {
+          withCredentials: true,
+        }
+      )
+      .then(async (response): Promise<void> => {
+        toast.success("Update Successfully!", {
+          position: "top-right",
+        });
+        setIsLoading(false);
+        await getListUsers();
+        return;
+      })
+      .catch((error): void => {
+        setIsLoading(false);
+        if (error.response && error.response.status === 404) {
+          dispatch(logout());
+          toast.error("セッション切れ！", {
+            position: "top-left",
+          });
+          navigate("/login");
+          return;
+        }
+        if (error.response && error.response.status === 400) {
+          toast.error("Update Failed", {
+            position: "top-left",
+          });
+          return;
+        }
+      });
+
+    const timer: NodeJS.Timer = setTimeout((): void => {
+      setIsLoading(false);
+    }, 2000);
+    return clearTimeout(timer);
   };
 
   return (
     <div className="container">
       <Navbar home={"/admin-dashboard"} list={["users"]} />
-      <h1>User Dashboard</h1>
+      <div className="d-flex justify-content-between my-3">
+        <h1>User Dashboard</h1>
+        <button
+          className="btn btn-outline-primary p-2"
+          onClick={() => handleChange()}
+        >
+          Add New
+        </button>
+      </div>
       <div className="row p-3">
-        <table className="table table-hover">
-          <thead>
-            <tr>
-              <th scope="col">#</th>
-              <th scope="col">Name</th>
-              <th scope="col">Email</th>
-              <th scope="col">Role</th>
-              <th scope="col">Department</th>
-              <th scope="col">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users?.map((user, id) => (
-              <tr key={id}>
-                <th scope="row">{id + 1}</th>
-                <td>{user.username}</td>
-                <td>{user.email}</td>
-                <td>{user.role}</td>
-                <td>{user.department}</td>
-                <td>
-                  <div className="d-flex">
-                    {/* <button className="btn btn-outline-primary">info</button> */}
-                    <span
-                      data-bs-toggle="modal"
-                      // data-bs-target={`#editUser${id}Modal`}
-                      // data-bs-whatever="@getbootstrap"
-                      onClick={() => {}}
-                    >
-                      &#9997;
-                    </span>
-                    {/* <ModalComponent index={1} user={userForTest} /> */}
-                    <span
-                      style={{
-                        marginLeft: "15px",
-                      }}
-                      onClick={() => alert("Clicked")}
-                    >
-                      &#128465;
-                    </span>
-                  </div>
-                </td>
-              </tr>
-            ))}
-            <tr>
-              <th scope="row">1</th>
-              <td>Mark</td>
-              <td>Otto@gmail.com</td>
-              <td>@develop</td>
-              <td>System Develop</td>
-              <td>
-                <div className="d-flex">
-                  {/* <button className="btn btn-outline-primary">info</button> */}
-                  <span onClick={() => handleModal(userForTest)}>&#9997;</span>
-                  <span
-                    style={{
-                      marginLeft: "15px",
-                    }}
-                    onClick={() => alert("Clicked")}
-                  >
-                    &#128465;
-                  </span>
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">1</th>
-              <td>Jean</td>
-              <td>Jean@gmail.com</td>
-              <td>@develop</td>
-              <td>System Develop</td>
-              <td>
-                <div className="d-flex">
-                  <span onClick={() => handleModal(userForTest1)}>&#9997;</span>
-                  <span
-                    style={{
-                      marginLeft: "15px",
-                    }}
-                    onClick={() => alert("Clicked")}
-                  >
-                    &#128465;
-                  </span>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <TableComponent users={users} handleModal={handleModal} />
       </div>
       {userModal && (
         <ModalComponent
           user={userModal}
           handleCloseModal={handleCloseModal}
           handleEditSubmit={handleEditSubmit}
+        />
+      )}
+      {addUser && (
+        <ModalComponent
+          addUser={addUser}
+          handleCloseModal={handleCloseModal}
+          handleAddNewUser={handleAddNewUser}
         />
       )}
     </div>
